@@ -10,14 +10,20 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@jridgewell/sourcemap-codec": "^1.4.15",
+    "@rollup/plugin-inject": "^5.0.5",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
+    "debug": "^4.3.5",
     "express": "^4.19.2",
     "glob": "^10.4.2",
+    "lru-cache": "^10.2.2",
+    "next": "^14.2.4",
     "pg": "^8.12.0",
     "pg-hstore": "^2.3.4",
     "rimraf": "^5.0.7",
     "sequelize": "^6.37.3",
-    "stripe": "^15.12.0"
+    "stripe": "^15.12.0",
+    "uuid": "^10.0.0"
   }
 }
