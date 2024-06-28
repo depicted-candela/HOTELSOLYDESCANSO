@@ -8,32 +8,36 @@
 </head>
 <body>
     <header>
-        <h1>Welcome to Our Hotel</h1>
-        <p>Book your stay with us</p>
+        <h1>Bienvenido a Hotel Sol y Descanso</h1>
+        <p>Agende su estancia con nosotros</p>
     </header>
 
     <section id="availability">
-        <h2>Check Room Availability</h2>
+        <h2>Ver Habitaciones Disponibles</h2>
         <form id="checkAvailabilityForm">
             <label for="startDate">Start Date:</label>
             <input type="date" id="startDate" name="startDate" required>
             <label for="endDate">End Date:</label>
             <input type="date" id="endDate" name="endDate" required>
-            <button type="submit">Check Availability</button>
+            <button type="submit">Disponible?</button>
         </form>
         <div id="availableRooms"></div>
     </section>
 
     <section id="reservation">
-        <h2>Reserve a Room</h2>
+        <h2>Reserve una Habitación</h2>
         <form id="reservationForm">
-            <label for="roomNumber">Room Number:</label>
-            <input type="number" id="roomNumber" name="roomNumber" required>
-            <label for="name">Name:</label>
+            <label for="roomNumber">Número de habitación:</label>
+            <select id="roomNumber" name="roomNumber" required></select>
+            <label for="startDateReservation">Start Date:</label>
+            <input type="date" id="startDateReservation" name="startDateReservation" required>
+            <label for="endDateReservation">End Date:</label>
+            <input type="date" id="endDateReservation" name="endDateReservation" required>
+            <label for="name">Nombre:</label>
             <input type="text" id="name" name="name" required>
             <label for="email">Email:</label>
             <input type="email" id="email" name="email" required>
-            <button type="submit">Reserve</button>
+            <button type="submit">Reservar</button>
         </form>
         <div id="reservationStatus"></div>
     </section>
