@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const roomNumbers = [101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111];
     populateRoomNumbers(roomNumbers);
     window.roomNumbers = roomNumbers; // Make the roomNumbers array accessible globally
-    window.reservations = []; // Array to hold reservations
+    window.reservations = getReservationsFromLocalStorage(); // Get reservations from local storage
 });
 
 document.getElementById('checkAvailabilityForm').addEventListener('submit', function(event) {
@@ -93,5 +93,16 @@ function checkRoomAvailability(roomNumber, startDate, endDate) {
 
 function reserveRoom(roomNumber, startDate, endDate, name, email) {
     // Add the reservation to the reservations array
-    window.reservations.push({ roomNumber, startDate, endDate, name, email });
+    const newReservation = { roomNumber, startDate, endDate, name, email };
+    window.reservations.push(newReservation);
+    saveReservationsToLocalStorage(window.reservations);
+}
+
+function getReservationsFromLocalStorage() {
+    const reservations = localStorage.getItem('reservations');
+    return reservations ? JSON.parse(reservations) : [];
+}
+
+function saveReservationsToLocalStorage(reservations) {
+    localStorage.setItem('reservations', JSON.stringify(reservations));
 }
