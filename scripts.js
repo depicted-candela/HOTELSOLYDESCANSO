@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (storedRooms) {
         roomNumbers = JSON.parse(storedRooms).map(roomData => {
-            const room = new Room(roomData.roomNumber);
+            const room = new Room(roomData.roomNumber, roomData.environments);
             room.reservations = roomData.reservations.map(reservation => {
                 return { startDate: new Date(reservation.startDate), endDate: new Date(reservation.endDate), name: reservation.name, email: reservation.email };
             });
@@ -14,7 +14,11 @@ document.addEventListener('DOMContentLoaded', function() {
             return room;
         });
     } else {
-        roomNumbers = [101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111].map(roomNumber => new Room(roomNumber));
+        roomNumbers = [
+            new Room(101, 1), new Room(102, 2), new Room(103, 1), new Room(104, 2),
+            new Room(105, 1), new Room(106, 2), new Room(107, 1), new Room(108, 2),
+            new Room(109, 1), new Room(110, 2), new Room(111, 1)
+        ];
         saveRoomsToLocalStorage(roomNumbers);
     }
 
@@ -30,13 +34,13 @@ document.getElementById('checkAvailabilityForm').addEventListener('submit', func
 
     const availableRooms = window.roomNumbers.filter(room => {
         return room.isAvailable(startDate, endDate);
-    }).map(room => room.roomNumber);
+    });
 
     const availableRoomsDiv = document.getElementById('availableRooms');
     if (availableRooms.length > 0) {
         availableRoomsDiv.innerHTML = '<h3>Habitaciones disponibles:</h3>';
-        availableRooms.forEach(roomNumber => {
-            availableRoomsDiv.innerHTML += `<p>Hab. ${roomNumber}</p>`;
+        availableRooms.forEach(room => {
+            availableRoomsDiv.innerHTML += `<p>Hab. ${room.roomNumber} (${room.environments} ambiente${room.environments > 1 ? 's' : ''})</p>`;
         });
     } else {
         availableRoomsDiv.innerHTML = '<p>No hay habitaciones disponibles para el periodo seleccionado.</p>';
@@ -81,8 +85,9 @@ document.getElementById('rentForm').addEventListener('submit', function(event) {
 });
 
 class Room {
-    constructor(roomNumber) {
+    constructor(roomNumber, environments) {
         this.roomNumber = roomNumber;
+        this.environments = environments;
         this.reservations = [];
         this.rents = [];
     }
@@ -110,10 +115,10 @@ class Room {
 function populateRoomNumbers(roomNumbers, selectId) {
     const roomNumberSelect = document.getElementById(selectId);
     roomNumberSelect.innerHTML = '';
-    roomNumbers.forEach(roomNumber => {
+    roomNumbers.forEach(room => {
         const option = document.createElement('option');
-        option.value = roomNumber.roomNumber ? roomNumber.roomNumber : roomNumber;
-        option.textContent = `Hab. ${roomNumber.roomNumber ? roomNumber.roomNumber : roomNumber}`;
+        option.value = room.roomNumber;
+        option.textContent = `Hab. ${room.roomNumber} (${room.environments} ambiente${room.environments > 1 ? 's' : ''})`;
         roomNumberSelect.appendChild(option);
     });
 }
@@ -138,6 +143,7 @@ function reserveRoom(roomNumber, startDate, endDate, serviceType, name, email) {
 function saveRoomsToLocalStorage(rooms) {
     localStorage.setItem('hotelRooms', JSON.stringify(rooms.map(room => ({
         roomNumber: room.roomNumber,
+        environments: room.environments,
         reservations: room.reservations,
         rents: room.rents
     }))));
