@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (storedRooms) {
         roomNumbers = JSON.parse(storedRooms).map(roomData => {
-            const room = new Room(roomData.roomNumber, roomData.environments);
+            const room = new Room(roomData.roomNumber, roomData.environments, roomData.image);
             room.reservations = roomData.reservations.map(reservation => {
                 return { startDate: new Date(reservation.startDate), endDate: new Date(reservation.endDate), name: reservation.name, email: reservation.email };
             });
@@ -15,15 +15,17 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     } else {
         roomNumbers = [
-            new Room(101, 1), new Room(102, 2), new Room(103, 1), new Room(104, 2),
-            new Room(105, 1), new Room(106, 2), new Room(107, 1), new Room(108, 2),
-            new Room(109, 1), new Room(110, 2), new Room(111, 1)
+            new Room(101, 1, 'images/room101.jpeg '), new Room(102, 2, 'images/room102.jpeg '), new Room(103, 1, 'images/room103.jpeg '),
+            new Room(104, 2, 'images/room104.jpeg '), new Room(105, 1, 'images/room105.jpeg '), new Room(106, 2, 'images/room106.jpeg '),
+            new Room(107, 1, 'images/room107.jpeg '), new Room(108, 2, 'images/room108.jpeg '), new Room(109, 1, 'images/room109.jpeg '),
+            new Room(110, 2, 'images/room110.jpeg '), new Room(111, 1, 'images/room111.jpeg ')
         ];
         saveRoomsToLocalStorage(roomNumbers);
     }
 
     populateRoomNumbers(roomNumbers, 'roomNumberReservation');
     populateRoomNumbers(roomNumbers, 'roomNumberRent');
+    populateRoomGallery(roomNumbers);
     window.roomNumbers = roomNumbers;
 });
 
@@ -48,6 +50,7 @@ document.getElementById('checkAvailabilityForm').addEventListener('submit', func
 
     populateRoomNumbers(availableRooms, 'roomNumberReservation');
     populateRoomNumbers(availableRooms, 'roomNumberRent');
+    populateRoomGallery(availableRooms);
 });
 
 document.getElementById('reservationForm').addEventListener('submit', function(event) {
@@ -85,9 +88,10 @@ document.getElementById('rentForm').addEventListener('submit', function(event) {
 });
 
 class Room {
-    constructor(roomNumber, environments) {
+    constructor(roomNumber, environments, image) {
         this.roomNumber = roomNumber;
         this.environments = environments;
+        this.image = image;
         this.reservations = [];
         this.rents = [];
     }
@@ -123,6 +127,20 @@ function populateRoomNumbers(roomNumbers, selectId) {
     });
 }
 
+function populateRoomGallery(roomNumbers) {
+    const roomGallery = document.getElementById('roomGallery');
+    roomGallery.innerHTML = '';
+    roomNumbers.forEach(room => {
+        const roomDiv = document.createElement('div');
+        roomDiv.className = 'room-item';
+        roomDiv.innerHTML = `
+            <img src="${room.image}" alt="Room ${room.roomNumber}">
+            <p>Hab. ${room.roomNumber} (${room.environments} ambiente${room.environments > 1 ? 's' : ''})</p>
+        `;
+        roomGallery.appendChild(roomDiv);
+    });
+}
+
 function checkRoomAvailability(roomNumber, startDate, endDate, serviceType) {
     const room = window.roomNumbers.find(room => room.roomNumber === roomNumber);
     if (!room) return false;
@@ -144,6 +162,7 @@ function saveRoomsToLocalStorage(rooms) {
     localStorage.setItem('hotelRooms', JSON.stringify(rooms.map(room => ({
         roomNumber: room.roomNumber,
         environments: room.environments,
+        image: room.image,
         reservations: room.reservations,
         rents: room.rents
     }))));

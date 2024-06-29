@@ -5,12 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hotel Booking</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        #roomGallery {
+            display: flex;
+            overflow-x: scroll;
+            white-space: nowrap;
+        }
+
+        .room-item {
+            display: inline-block;
+            margin: 10px;
+            text-align: center;
+        }
+
+        .room-item img {
+            max-width: 100px;
+            height: auto;
+        }
+    </style>
 </head>
 <body>
     <header>
         <h1>Bienvenido a Hotel Sol y Descanso</h1>
         <p>Agende su estancia con nosotros</p>
     </header>
+
+    <section id="gallery">
+        <h2>Galería de Habitaciones</h2>
+        <div id="roomGallery"></div>
+    </section>
 
     <section id="availability">
         <h2>Revisar Disponibilidad de Habitaciones</h2>
