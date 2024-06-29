@@ -2,18 +2,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let roomNumbers = [];
     const storedRooms = localStorage.getItem('hotelRooms');
 
-    if (storedRooms) {
-        roomNumbers = JSON.parse(storedRooms).map(roomData => {
-            const room = new Room(roomData.roomNumber, roomData.environments, roomData.image);
-            room.reservations = roomData.reservations.map(reservation => {
-                return { startDate: new Date(reservation.startDate), endDate: new Date(reservation.endDate), name: reservation.name, email: reservation.email };
-            });
-            room.rents = roomData.rents.map(rent => {
-                return { startDate: new Date(rent.startDate), endDate: new Date(rent.endDate), name: rent.name, email: rent.email };
-            });
-            return room;
-        });
-    } else {
+    if (!storedRooms) {
         roomNumbers = [
             new Room(101, 1, 'images/room101.jpeg '), new Room(102, 2, 'images/room102.jpeg '), new Room(103, 1, 'images/room103.jpeg '),
             new Room(104, 2, 'images/room104.jpeg '), new Room(105, 1, 'images/room105.jpeg '), new Room(106, 2, 'images/room106.jpeg '),
@@ -22,6 +11,17 @@ document.addEventListener('DOMContentLoaded', function() {
         ];
         saveRoomsToLocalStorage(roomNumbers);
     }
+
+    roomNumbers = JSON.parse(storedRooms).map(roomData => {
+        const room = new Room(roomData.roomNumber, roomData.environments, roomData.image);
+        room.reservations = roomData.reservations.map(reservation => {
+            return { startDate: new Date(reservation.startDate), endDate: new Date(reservation.endDate), name: reservation.name, email: reservation.email };
+        });
+        room.rents = roomData.rents.map(rent => {
+            return { startDate: new Date(rent.startDate), endDate: new Date(rent.endDate), name: rent.name, email: rent.email };
+        });
+        return room;
+    });
 
     populateRoomNumbers(roomNumbers, 'roomNumberReservation');
     populateRoomNumbers(roomNumbers, 'roomNumberRent');
@@ -33,21 +33,8 @@ document.getElementById('checkAvailabilityForm').addEventListener('submit', func
     event.preventDefault();
     const startDate = new Date(document.getElementById('startDate').value);
     const endDate = new Date(document.getElementById('endDate').value);
-
-    const availableRooms = window.roomNumbers.filter(room => {
-        return room.isAvailable(startDate, endDate);
-    });
-
-    const availableRoomsDiv = document.getElementById('availableRooms');
-    if (availableRooms.length > 0) {
-        availableRoomsDiv.innerHTML = '<h3>Habitaciones disponibles:</h3>';
-        availableRooms.forEach(room => {
-            availableRoomsDiv.innerHTML += `<p>Hab. ${room.roomNumber} (${room.environments} ambiente${room.environments > 1 ? 's' : ''})</p>`;
-        });
-    } else {
-        availableRoomsDiv.innerHTML = '<p>No hay habitaciones disponibles para el periodo seleccionado.</p>';
-    }
-
+    const availableRooms = getAvailableRooms(window, startDate, endDate);
+    htmlForAvailability(availableRooms, document.getElementById('availableRooms'));
     populateRoomNumbers(availableRooms, 'roomNumberReservation');
     populateRoomNumbers(availableRooms, 'roomNumberRent');
     populateRoomGallery(availableRooms);
@@ -65,26 +52,26 @@ document.getElementById('reservationForm').addEventListener('submit', function(e
     if (checkRoomAvailability(roomNumber, startDate, endDate, 'reservar')) {
         reserveRoom(roomNumber, startDate, endDate, 'reservar', name, email);
         document.getElementById('reservationStatus').innerHTML = `<p>La habitación ${roomNumber} reservada satisfactoriamente para ${name} (${email})</p>`;
-    } else {
-        document.getElementById('reservationStatus').innerHTML = `<p>La habitación ${roomNumber} no está disponible para reservar desde ${startDate.toLocaleDateString()} a ${endDate.toLocaleDateString()}</p>`;
+        return;
     }
+
+    document.getElementById('reservationStatus').innerHTML = `<p>La habitación ${roomNumber} no está disponible para reservar desde ${startDate.toLocaleDateString()} a ${endDate.toLocaleDateString()}</p>`;
 });
 
 document.getElementById('rentForm').addEventListener('submit', function(event) {
     event.preventDefault();
-
     const roomNumber = parseInt(document.getElementById('roomNumberRent').value);
     const startDate = new Date(document.getElementById('startDateRent').value);
     const endDate = new Date(document.getElementById('endDateRent').value);
     const name = document.getElementById('nameRent').value;
     const email = document.getElementById('emailRent').value;
 
-    if (checkRoomAvailability(roomNumber, startDate, endDate, 'alquilar')) {
+    if (checkRoomAvailability(roomNumber, startDate, endDate)) {
         reserveRoom(roomNumber, startDate, endDate, 'alquilar', name, email);
         document.getElementById('rentStatus').innerHTML = `<p>La habitación ${roomNumber} alquilada satisfactoriamente para ${name} (${email})</p>`;
-    } else {
-        document.getElementById('rentStatus').innerHTML = `<p>La habitación ${roomNumber} no está disponible para alquilar desde ${startDate.toLocaleDateString()} a ${endDate.toLocaleDateString()}</p>`;
+        return;
     }
+    document.getElementById('rentStatus').innerHTML = `<p>La habitación ${roomNumber} no está disponible para alquilar desde ${startDate.toLocaleDateString()} a ${endDate.toLocaleDateString()}</p>`;
 });
 
 class Room {
@@ -141,7 +128,7 @@ function populateRoomGallery(roomNumbers) {
     });
 }
 
-function checkRoomAvailability(roomNumber, startDate, endDate, serviceType) {
+function checkRoomAvailability(roomNumber, startDate, endDate) {
     const room = window.roomNumbers.find(room => room.roomNumber === roomNumber);
     if (!room) return false;
     return room.isAvailable(startDate, endDate);
@@ -152,9 +139,9 @@ function reserveRoom(roomNumber, startDate, endDate, serviceType, name, email) {
     if (!room) return;
     if (serviceType === 'reservar') {
         room.addReservation(startDate, endDate, name, email);
-    } else if (serviceType === 'alquilar') {
-        room.addRent(startDate, endDate, name, email);
+        return;
     }
+    room.addRent(startDate, endDate, name, email);
     saveRoomsToLocalStorage(window.roomNumbers);
 }
 
@@ -166,4 +153,34 @@ function saveRoomsToLocalStorage(rooms) {
         reservations: room.reservations,
         rents: room.rents
     }))));
+}
+
+function getRooms(storedRooms) {
+    JSON.parse(storedRooms).map(roomData => {
+        const room = new Room(roomData.roomNumber, roomData.environments, roomData.image);
+        room.reservations = roomData.reservations.map(reservation => {
+            return { startDate: new Date(reservation.startDate), endDate: new Date(reservation.endDate), name: reservation.name, email: reservation.email };
+        });
+        room.rents = roomData.rents.map(rent => {
+            return { startDate: new Date(rent.startDate), endDate: new Date(rent.endDate), name: rent.name, email: rent.email };
+        });
+        return room;
+    });
+}
+
+function getAvailableRooms(window,startDate, endDate) {
+    return window.roomNumbers.filter(room => {
+        return room.isAvailable(startDate, endDate);
+    });
+}
+
+function htmlForAvailability(availableRooms, availableRoomsDiv) {
+    if (availableRooms.length > 0) {
+        availableRoomsDiv.innerHTML = '<h3>Habitaciones disponibles:</h3>';
+        availableRooms.forEach(room => {
+            availableRoomsDiv.innerHTML += `<p>Hab. ${room.roomNumber} (${room.environments} ambiente${room.environments > 1 ? 's' : ''})</p>`;
+        });
+    } else {
+        availableRoomsDiv.innerHTML = '<p>No hay habitaciones disponibles para el periodo seleccionado.</p>';
+    }
 }
