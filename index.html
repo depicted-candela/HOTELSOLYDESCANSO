@@ -27,24 +27,37 @@
     <section id="reservation">
         <h2>Reserve una Habitación</h2>
         <form id="reservationForm">
-            <label for="roomNumber">Número de habitación:</label>
-            <select id="roomNumber" name="roomNumber" required></select>
-            <label for="startDateReservation">Start Date:</label>
+            <label for="roomNumberReservation">Número de habitación:</label>
+            <select id="roomNumberReservation" name="roomNumber" required></select>
+            <label for="startDateReservation">Fecha Inicial:</label>
             <input type="date" id="startDateReservation" name="startDateReservation" required>
-            <label for="endDateReservation">End Date:</label>
+            <label for="endDateReservation">Fecha Final:</label>
             <input type="date" id="endDateReservation" name="endDateReservation" required>
-            <label for="bookingType">Tipo de reserva:</label>
-            <select id="bookingType" name="bookingType" required>
-                <option value="rent">Alquilar</option>
-                <option value="reserve">Reservar</option>
-            </select>
-            <label for="name">Nombre:</label>
-            <input type="text" id="name" name="name" required>
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" required>
+            <label for="nameReservation">Nombre:</label>
+            <input type="text" id="nameReservation" name="nameReservation" required>
+            <label for="emailReservation">Email:</label>
+            <input type="email" id="emailReservation" name="emailReservation" required>
             <button type="submit">Reservar</button>
         </form>
         <div id="reservationStatus"></div>
+    </section>
+
+    <section id="rent">
+        <h2>Alquile una Habitación</h2>
+        <form id="rentForm">
+            <label for="roomNumberRent">Número de habitación:</label>
+            <select id="roomNumberRent" name="roomNumber" required></select>
+            <label for="startDateRent">Fecha Inicial:</label>
+            <input type="date" id="startDateRent" name="startDateRent" required>
+            <label for="endDateRent">Fecha Final:</label>
+            <input type="date" id="endDateRent" name="endDateRent" required>
+            <label for="nameRent">Nombre:</label>
+            <input type="text" id="nameRent" name="nameRent" required>
+            <label for="emailRent">Email:</label>
+            <input type="email" id="emailRent" name="emailRent" required>
+            <button type="submit">Alquilar</button>
+        </form>
+        <div id="rentStatus"></div>
     </section>
 
     <script src="scripts.js"></script>
