@@ -11,7 +11,7 @@ document.getElementById('checkAvailabilityForm').addEventListener('submit', func
     const startDate = document.getElementById('startDate').value;
     const endDate = document.getElementById('endDate').value;
 
-    // Fetch available rooms considering existing reservations
+    // Fetch available rooms considering existing reservations and rents
     const availableRooms = fetchAvailableRooms(startDate, endDate);
 
     // Display available rooms
@@ -38,18 +38,19 @@ document.getElementById('reservationForm').addEventListener('submit', function(e
     const roomNumber = document.getElementById('roomNumber').value;
     const startDate = document.getElementById('startDateReservation').value;
     const endDate = document.getElementById('endDateReservation').value;
+    const bookingType = document.getElementById('bookingType').value;
     const name = document.getElementById('name').value;
     const email = document.getElementById('email').value;
 
-    // Check if the room is available for the given date span
+    // Check if the room is available for the given date span and booking type
     const isAvailable = checkRoomAvailability(roomNumber, startDate, endDate);
     let reservationStatus;
     if (isAvailable) {
         // Reserve the room
-        reserveRoom(roomNumber, startDate, endDate, name, email);
-        reservationStatus = `<p>Room ${roomNumber} reserved successfully for ${name} (${email})</p>`;
+        reserveRoom(roomNumber, startDate, endDate, bookingType, name, email);
+        reservationStatus = `<p>La habitación ${roomNumber} reservada satisfactoriamente para ${name} (${email})</p>`;
     } else {
-        reservationStatus = `<p>Room ${roomNumber} is not available from ${startDate} to ${endDate}</p>`;
+        reservationStatus = `<p>La habitación ${roomNumber} no está disponible para ${bookingType} desde ${startDate} a ${endDate}</p>`;
     }
 
     // Display reservation status
@@ -69,7 +70,7 @@ function populateRoomNumbers(roomNumbers) {
 }
 
 function fetchAvailableRooms(startDate, endDate) {
-    // Check available rooms considering existing reservations
+    // Check available rooms considering existing reservations and rents
     const availableRooms = window.roomNumbers.filter(room => {
         return !window.reservations.some(reservation => {
             return reservation.roomNumber == room &&
@@ -91,9 +92,9 @@ function checkRoomAvailability(roomNumber, startDate, endDate) {
     });
 }
 
-function reserveRoom(roomNumber, startDate, endDate, name, email) {
+function reserveRoom(roomNumber, startDate, endDate, bookingType, name, email) {
     // Add the reservation to the reservations array
-    const newReservation = { roomNumber, startDate, endDate, name, email };
+    const newReservation = { roomNumber, startDate, endDate, bookingType, name, email };
     window.reservations.push(newReservation);
     saveReservationsToLocalStorage(window.reservations);
 }
