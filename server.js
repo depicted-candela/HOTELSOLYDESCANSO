@@ -4,14 +4,13 @@ const fs = require('fs');
 const path = require('path');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000; // Use Heroku's port or default to 3000
 
 app.use(bodyParser.json());
 
 // Serve static files from the public directory
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Define Room class with methods
 class Room {
     constructor(roomNumber, environments, image) {
         this.roomNumber = roomNumber;
@@ -85,5 +84,5 @@ function saveRooms() {
 }
 
 app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
 });
