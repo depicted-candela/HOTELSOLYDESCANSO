@@ -1,0 +1,86 @@
+[
+  {
+    "roomNumber": 101,
+    "environments": 1,
+    "image": "images/room101.jpeg",
+    "reservations": [
+      {
+        "startDate": "2024-06-29T00:00:00.000Z",
+        "endDate": "2024-06-29T00:00:00.000Z",
+        "name": "Nicolás Alberto Córdoba",
+        "email": "nicalcoca@gmail.com"
+      }
+    ],
+    "rents": []
+  },
+  {
+    "roomNumber": 102,
+    "environments": 2,
+    "image": "images/room102.jpeg",
+    "reservations": [],
+    "rents": []
+  },
+  {
+    "roomNumber": 103,
+    "environments": 1,
+    "image": "images/room103.jpeg",
+    "reservations": [],
+    "rents": []
+  },
+  {
+    "roomNumber": 104,
+    "environments": 2,
+    "image": "images/room104.jpeg",
+    "reservations": [],
+    "rents": []
+  },
+  {
+    "roomNumber": 105,
+    "environments": 2,
+    "image": "images/room105.jpeg",
+    "reservations": [],
+    "rents": []
+  },
+  {
+    "roomNumber": 106,
+    "environments": 1,
+    "image": "images/room106.jpeg",
+    "reservations": [],
+    "rents": []
+  },
+  {
+    "roomNumber": 107,
+    "environments": 1,
+    "image": "images/room107.jpeg",
+    "reservations": [],
+    "rents": []
+  },
+  {
+    "roomNumber": 108,
+    "environments": 1,
+    "image": "images/room108.jpeg",
+    "reservations": [],
+    "rents": []
+  },
+  {
+    "roomNumber": 109,
+    "environments": 1,
+    "image": "images/room109.jpeg",
+    "reservations": [],
+    "rents": []
+  },
+  {
+    "roomNumber": 110,
+    "environments": 2,
+    "image": "images/room110.jpeg",
+    "reservations": [],
+    "rents": []
+  },
+  {
+    "roomNumber": 111,
+    "environments": 2,
+    "image": "images/room111.jpeg",
+    "reservations": [],
+    "rents": []
+  }
+]
