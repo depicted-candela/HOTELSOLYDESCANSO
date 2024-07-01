@@ -1,10 +1,12 @@
+// server.js
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const fs = require('fs');
 const path = require('path');
 
 const app = express();
-const PORT = process.env.PORT || 3000; // Use Heroku's port or default to 3000
+const PORT = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
 

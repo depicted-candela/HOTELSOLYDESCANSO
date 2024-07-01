@@ -1,3 +1,5 @@
+// public/scripts.js
+
 document.addEventListener('DOMContentLoaded', async function() {
     const roomNumbers = await fetchRooms();
     populateRoomNumbers(roomNumbers, 'roomNumberReservation');
