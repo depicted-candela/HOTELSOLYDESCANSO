@@ -1,5 +1,3 @@
-// public/scripts.js
-
 document.addEventListener('DOMContentLoaded', async function() {
     const roomNumbers = await fetchRooms();
     populateRoomNumbers(roomNumbers, 'roomNumberReservation');
@@ -37,23 +35,30 @@ async function checkAvailability(startDate, endDate) {
 
 document.getElementById('reservationForm').addEventListener('submit', async function(event) {
     event.preventDefault();
+    const token = localStorage.getItem('token');
+    if (!token) {
+        alert('Please log in to make a reservation.');
+        return;
+    }
+
     const roomNumber = parseInt(document.getElementById('roomNumberReservation').value);
     const startDate = document.getElementById('startDateReservation').value;
     const endDate = document.getElementById('endDateReservation').value;
     const name = document.getElementById('nameReservation').value;
     const email = document.getElementById('emailReservation').value;
 
-    const success = await reserveRoom(roomNumber, startDate, endDate, name, email);
+    const success = await reserveRoom(roomNumber, startDate, endDate, name, email, token);
     document.getElementById('reservationStatus').innerHTML = success ?
         `<p>La habitación ${roomNumber} reservada satisfactoriamente para ${name} (${email})</p>` :
         `<p>La habitación ${roomNumber} no está disponible para reservar desde ${startDate} a ${endDate}</p>`;
 });
 
-async function reserveRoom(roomNumber, startDate, endDate, name, email) {
+async function reserveRoom(roomNumber, startDate, endDate, name, email, token) {
     const response = await fetch('/api/reserve', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({ roomNumber, startDate, endDate, name, email })
     });
@@ -63,29 +68,75 @@ async function reserveRoom(roomNumber, startDate, endDate, name, email) {
 
 document.getElementById('rentForm').addEventListener('submit', async function(event) {
     event.preventDefault();
+    const token = localStorage.getItem('token');
+    if (!token) {
+        alert('Please log in to rent a room.');
+        return;
+    }
+
     const roomNumber = parseInt(document.getElementById('roomNumberRent').value);
     const startDate = document.getElementById('startDateRent').value;
     const endDate = document.getElementById('endDateRent').value;
     const name = document.getElementById('nameRent').value;
     const email = document.getElementById('emailRent').value;
 
-    const success = await rentRoom(roomNumber, startDate, endDate, name, email);
+    const success = await rentRoom(roomNumber, startDate, endDate, name, email, token);
     document.getElementById('rentStatus').innerHTML = success ?
         `<p>La habitación ${roomNumber} alquilada satisfactoriamente para ${name} (${email})</p>` :
         `<p>La habitación ${roomNumber} no está disponible para alquilar desde ${startDate} a ${endDate}</p>`;
 });
 
-async function rentRoom(roomNumber, startDate, endDate, name, email) {
+async function rentRoom(roomNumber, startDate, endDate, name, email, token) {
     const response = await fetch('/api/rent', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({ roomNumber, startDate, endDate, name, email })
     });
     const result = await response.json();
     return result.success;
 }
+
+document.getElementById('registerForm').addEventListener('submit', async function(event) {
+    event.preventDefault();
+    const username = document.getElementById('registerUsername').value;
+    const password = document.getElementById('registerPassword').value;
+
+    const response = await fetch('/api/register', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ username, password })
+    });
+
+    const result = await response.json();
+    document.getElementById('registerStatus').innerHTML = result.message || 'Registration successful';
+});
+
+document.getElementById('loginForm').addEventListener('submit', async function(event) {
+    event.preventDefault();
+    const username = document.getElementById('loginUsername').value;
+    const password = document.getElementById('loginPassword').value;
+
+    const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ username, password })
+    });
+
+    const result = await response.json();
+    if (result.token) {
+        localStorage.setItem('token', result.token);
+        document.getElementById('loginStatus').innerHTML = 'Login successful';
+    } else {
+        document.getElementById('loginStatus').innerHTML = result.message || 'Login failed';
+    }
+});
 
 function populateRoomNumbers(roomNumbers, selectId) {
     const roomNumberSelect = document.getElementById(selectId);
