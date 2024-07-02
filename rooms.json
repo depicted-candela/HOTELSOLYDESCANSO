@@ -9,6 +9,12 @@
         "endDate": "2024-06-29T00:00:00.000Z",
         "name": "Nicolás Alberto Córdoba",
         "email": "nicalcoca@gmail.com"
+      },
+      {
+        "startDate": "2024-07-29T00:00:00.000Z",
+        "endDate": "2024-07-29T00:00:00.000Z",
+        "name": "Nicolás Alberto Córdoba",
+        "email": "nicalcoca@gmail.com"
       }
     ],
     "rents": []
@@ -17,28 +23,56 @@
     "roomNumber": 102,
     "environments": 2,
     "image": "images/room102.jpeg",
-    "reservations": [],
+    "reservations": [
+      {
+        "startDate": "2024-07-29T00:00:00.000Z",
+        "endDate": "2024-07-29T00:00:00.000Z",
+        "name": "Nicolás Alberto Córdoba",
+        "email": "nicalcoca@gmail.com"
+      }
+    ],
     "rents": []
   },
   {
     "roomNumber": 103,
     "environments": 1,
     "image": "images/room103.jpeg",
-    "reservations": [],
+    "reservations": [
+      {
+        "startDate": "2024-07-29T00:00:00.000Z",
+        "endDate": "2024-07-29T00:00:00.000Z",
+        "name": "Nicolás Alberto Córdoba",
+        "email": "nicalcoca@gmail.com"
+      }
+    ],
     "rents": []
   },
   {
     "roomNumber": 104,
     "environments": 2,
     "image": "images/room104.jpeg",
-    "reservations": [],
+    "reservations": [
+      {
+        "startDate": "2024-07-29T00:00:00.000Z",
+        "endDate": "2024-07-29T00:00:00.000Z",
+        "name": "Nicolás Alberto Córdoba",
+        "email": "nicalcoca@gmail.com"
+      }
+    ],
     "rents": []
   },
   {
     "roomNumber": 105,
     "environments": 2,
     "image": "images/room105.jpeg",
-    "reservations": [],
+    "reservations": [
+      {
+        "startDate": "2024-07-29T00:00:00.000Z",
+        "endDate": "2024-07-29T00:00:00.000Z",
+        "name": "Nicolás Alberto Córdoba",
+        "email": "nicalcoca@gmail.com"
+      }
+    ],
     "rents": []
   },
   {

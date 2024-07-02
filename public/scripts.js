@@ -1,8 +1,11 @@
+// public/scripts.js
+
 document.addEventListener('DOMContentLoaded', async function() {
     const roomNumbers = await fetchRooms();
     populateRoomNumbers(roomNumbers, 'roomNumberReservation');
     populateRoomNumbers(roomNumbers, 'roomNumberRent');
     populateRoomGallery(roomNumbers);
+    handleAuthState();
     window.roomNumbers = roomNumbers;
 });
 
@@ -35,23 +38,30 @@ async function checkAvailability(startDate, endDate) {
 
 document.getElementById('reservationForm').addEventListener('submit', async function(event) {
     event.preventDefault();
+    const token = localStorage.getItem('token');
+    if (!token) {
+        alert('Please log in to make a reservation.');
+        return;
+    }
+
     const roomNumber = parseInt(document.getElementById('roomNumberReservation').value);
     const startDate = document.getElementById('startDateReservation').value;
     const endDate = document.getElementById('endDateReservation').value;
     const name = document.getElementById('nameReservation').value;
     const email = document.getElementById('emailReservation').value;
 
-    const success = await reserveRoom(roomNumber, startDate, endDate, name, email);
+    const success = await reserveRoom(roomNumber, startDate, endDate, name, email, token);
     document.getElementById('reservationStatus').innerHTML = success ?
         `<p>La habitación ${roomNumber} reservada satisfactoriamente para ${name} (${email})</p>` :
         `<p>La habitación ${roomNumber} no está disponible para reservar desde ${startDate} a ${endDate}</p>`;
 });
 
-async function reserveRoom(roomNumber, startDate, endDate, name, email) {
+async function reserveRoom(roomNumber, startDate, endDate, name, email, token) {
     const response = await fetch('/api/reserve', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({ roomNumber, startDate, endDate, name, email })
     });
@@ -61,23 +71,30 @@ async function reserveRoom(roomNumber, startDate, endDate, name, email) {
 
 document.getElementById('rentForm').addEventListener('submit', async function(event) {
     event.preventDefault();
+    const token = localStorage.getItem('token');
+    if (!token) {
+        alert('Please log in to rent a room.');
+        return;
+    }
+
     const roomNumber = parseInt(document.getElementById('roomNumberRent').value);
     const startDate = document.getElementById('startDateRent').value;
     const endDate = document.getElementById('endDateRent').value;
     const name = document.getElementById('nameRent').value;
     const email = document.getElementById('emailRent').value;
 
-    const success = await rentRoom(roomNumber, startDate, endDate, name, email);
+    const success = await rentRoom(roomNumber, startDate, endDate, name, email, token);
     document.getElementById('rentStatus').innerHTML = success ?
         `<p>La habitación ${roomNumber} alquilada satisfactoriamente para ${name} (${email})</p>` :
         `<p>La habitación ${roomNumber} no está disponible para alquilar desde ${startDate} a ${endDate}</p>`;
 });
 
-async function rentRoom(roomNumber, startDate, endDate, name, email) {
+async function rentRoom(roomNumber, startDate, endDate, name, email, token) {
     const response = await fetch('/api/rent', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({ roomNumber, startDate, endDate, name, email })
     });
@@ -119,4 +136,26 @@ function htmlForAvailability(availableRooms, availableRoomsDiv) {
     } else {
         availableRoomsDiv.innerHTML = '<p>No hay habitaciones disponibles para el periodo seleccionado.</p>';
     }
+}
+
+function handleAuthState() {
+    const token = localStorage.getItem('token');
+    const registerLink = document.getElementById('registerLink');
+    const loginLink = document.getElementById('loginLink');
+    const logoutButton = document.getElementById('logoutButton');
+
+    if (token) {
+        registerLink.style.display = 'none';
+        loginLink.style.display = 'none';
+        logoutButton.style.display = 'block';
+    } else {
+        registerLink.style.display = 'block';
+        loginLink.style.display = 'block';
+        logoutButton.style.display = 'none';
+    }
+
+    logoutButton.addEventListener('click', function() {
+        localStorage.removeItem('token');
+        window.location.reload();
+    });
 }

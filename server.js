@@ -1,14 +1,37 @@
+// server.js
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const fs = require('fs');
 const path = require('path');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const { check, validationResult } = require('express-validator');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 
 const app = express();
-const PORT = process.env.PORT || 3000; // Use Heroku's port or default to 3000
+const PORT = process.env.PORT || 4000;
+const SECRET_KEY = process.env.SECRET_KEY;
 
 app.use(bodyParser.json());
+app.use(
+    helmet({
+        contentSecurityPolicy: {
+            directives: {
+                defaultSrc: ["'self'"],
+                scriptSrc: ["'self'", "'unsafe-inline'"]
+            }
+        }
+    })
+);
 
-// Serve static files from the public directory
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100
+});
+app.use(limiter);
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 class Room {
@@ -45,17 +68,90 @@ let rooms = require('./rooms.json').map(roomData => {
     return room;
 });
 
+let users = []; // This should be replaced with a database in production
+
+function authenticateToken(req, res, next) {
+    const token = req.header('Authorization')?.split(' ')[1];
+    if (!token) return res.status(401).json({ message: 'Access Denied' });
+
+    try {
+        const verified = jwt.verify(token, SECRET_KEY);
+        req.user = verified;
+        next();
+    } catch (err) {
+        res.status(400).json({ message: 'Invalid Token' });
+    }
+}
+
+app.post('/api/register', [
+    check('username').isString().notEmpty().withMessage('Username is required'),
+    check('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long')
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { username, password } = req.body;
+    const userExists = users.find(u => u.username === username);
+    if (userExists) {
+        return res.status(400).json({ message: 'Username already taken' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    users.push({ username, password: hashedPassword });
+    res.json({ message: 'User registered successfully' });
+});
+
+app.post('/api/login', [
+    check('username').isString().notEmpty().withMessage('Username is required'),
+    check('password').isString().notEmpty().withMessage('Password is required')
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { username, password } = req.body;
+    const user = users.find(u => u.username === username);
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+        return res.status(400).json({ message: 'Invalid credentials' });
+    }
+
+    const token = jwt.sign({ username: user.username }, SECRET_KEY, { expiresIn: '1h' });
+    res.json({ token });
+});
+
 app.get('/api/rooms', (req, res) => {
     res.json(rooms);
 });
 
-app.post('/api/checkAvailability', (req, res) => {
+app.post('/api/checkAvailability', [
+    check('startDate').isISO8601().withMessage('Start date must be a valid date'),
+    check('endDate').isISO8601().withMessage('End date must be a valid date')
+], (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
     const { startDate, endDate } = req.body;
     const availableRooms = rooms.filter(room => room.isAvailable(new Date(startDate), new Date(endDate)));
     res.json(availableRooms);
 });
 
-app.post('/api/reserve', (req, res) => {
+app.post('/api/reserve', authenticateToken, [
+    check('roomNumber').isInt().withMessage('Room number must be an integer'),
+    check('startDate').isISO8601().withMessage('Start date must be a valid date'),
+    check('endDate').isISO8601().withMessage('End date must be a valid date'),
+    check('name').isString().notEmpty().withMessage('Name must be a non-empty string'),
+    check('email').isEmail().withMessage('Email must be a valid email address')
+], (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
     const { roomNumber, startDate, endDate, name, email } = req.body;
     const room = rooms.find(r => r.roomNumber === roomNumber);
     if (room && room.isAvailable(new Date(startDate), new Date(endDate))) {
@@ -67,7 +163,18 @@ app.post('/api/reserve', (req, res) => {
     }
 });
 
-app.post('/api/rent', (req, res) => {
+app.post('/api/rent', authenticateToken, [
+    check('roomNumber').isInt().withMessage('Room number must be an integer'),
+    check('startDate').isISO8601().withMessage('Start date must be a valid date'),
+    check('endDate').isISO8601().withMessage('End date must be a valid date'),
+    check('name').isString().notEmpty().withMessage('Name must be a non-empty string'),
+    check('email').isEmail().withMessage('Email must be a valid email address')
+], (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
     const { roomNumber, startDate, endDate, name, email } = req.body;
     const room = rooms.find(r => r.roomNumber === roomNumber);
     if (room && room.isAvailable(new Date(startDate), new Date(endDate))) {
