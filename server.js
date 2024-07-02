@@ -10,7 +10,7 @@ const bcrypt = require('bcryptjs');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
-const SECRET_KEY = 'your_secret_key'; // Use a secure key in production
+const SECRET_KEY = process.env.SECRET_KEY; // Use the secret key from environment variables
 
 app.use(bodyParser.json());
 app.use(helmet());
