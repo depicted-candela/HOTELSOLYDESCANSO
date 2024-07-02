@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hotel Booking</title>
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="styles.css">
     <style>
         #roomGallery {
@@ -29,7 +30,8 @@
             right: 20px;
         }
 
-        .auth-links a {
+        .auth-links a,
+        .auth-links button {
             margin-left: 10px;
             text-decoration: none;
             color: #333;
@@ -39,8 +41,13 @@
             border-radius: 4px;
         }
 
-        .auth-links a:hover {
+        .auth-links a:hover,
+        .auth-links button:hover {
             background-color: #f0f0f0;
+        }
+
+        .auth-links button {
+            cursor: pointer;
         }
     </style>
 </head>
@@ -49,8 +56,9 @@
         <h1>Bienvenido a Hotel Sol y Descanso</h1>
         <p>Agende su estancia con nosotros</p>
         <div class="auth-links">
-            <a href="register.html">Register</a>
-            <a href="login.html">Login</a>
+            <a href="register.html" id="registerLink">Register</a>
+            <a href="login.html" id="loginLink">Login</a>
+            <button id="logoutButton" style="display: none;">Logout</button>
         </div>
     </header>
 

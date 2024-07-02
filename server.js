@@ -1,3 +1,5 @@
+// server.js
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const fs = require('fs');
@@ -10,14 +12,23 @@ const bcrypt = require('bcryptjs');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
-const SECRET_KEY = process.env.SECRET_KEY; // Use the secret key from environment variables
+const SECRET_KEY = process.env.SECRET_KEY;
 
 app.use(bodyParser.json());
-app.use(helmet());
+app.use(
+    helmet({
+        contentSecurityPolicy: {
+            directives: {
+                defaultSrc: ["'self'"],
+                scriptSrc: ["'self'", "'unsafe-inline'"]
+            }
+        }
+    })
+);
 
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100
+    windowMs: 15 * 60 * 1000,
+    max: 100
 });
 app.use(limiter);
 
@@ -59,7 +70,6 @@ let rooms = require('./rooms.json').map(roomData => {
 
 let users = []; // This should be replaced with a database in production
 
-// Middleware to authenticate users
 function authenticateToken(req, res, next) {
     const token = req.header('Authorization')?.split(' ')[1];
     if (!token) return res.status(401).json({ message: 'Access Denied' });
@@ -73,7 +83,6 @@ function authenticateToken(req, res, next) {
     }
 }
 
-// User Registration
 app.post('/api/register', [
     check('username').isString().notEmpty().withMessage('Username is required'),
     check('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long')
@@ -94,7 +103,6 @@ app.post('/api/register', [
     res.json({ message: 'User registered successfully' });
 });
 
-// User Login
 app.post('/api/login', [
     check('username').isString().notEmpty().withMessage('Username is required'),
     check('password').isString().notEmpty().withMessage('Password is required')
@@ -114,12 +122,10 @@ app.post('/api/login', [
     res.json({ token });
 });
 
-// Get all rooms
 app.get('/api/rooms', (req, res) => {
     res.json(rooms);
 });
 
-// Check room availability
 app.post('/api/checkAvailability', [
     check('startDate').isISO8601().withMessage('Start date must be a valid date'),
     check('endDate').isISO8601().withMessage('End date must be a valid date')
@@ -134,7 +140,6 @@ app.post('/api/checkAvailability', [
     res.json(availableRooms);
 });
 
-// Reserve a room (protected)
 app.post('/api/reserve', authenticateToken, [
     check('roomNumber').isInt().withMessage('Room number must be an integer'),
     check('startDate').isISO8601().withMessage('Start date must be a valid date'),
@@ -158,7 +163,6 @@ app.post('/api/reserve', authenticateToken, [
     }
 });
 
-// Rent a room (protected)
 app.post('/api/rent', authenticateToken, [
     check('roomNumber').isInt().withMessage('Room number must be an integer'),
     check('startDate').isISO8601().withMessage('Start date must be a valid date'),

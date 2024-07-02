@@ -1,8 +1,11 @@
+// public/scripts.js
+
 document.addEventListener('DOMContentLoaded', async function() {
     const roomNumbers = await fetchRooms();
     populateRoomNumbers(roomNumbers, 'roomNumberReservation');
     populateRoomNumbers(roomNumbers, 'roomNumberRent');
     populateRoomGallery(roomNumbers);
+    handleAuthState();
     window.roomNumbers = roomNumbers;
 });
 
@@ -99,45 +102,6 @@ async function rentRoom(roomNumber, startDate, endDate, name, email, token) {
     return result.success;
 }
 
-document.getElementById('registerForm').addEventListener('submit', async function(event) {
-    event.preventDefault();
-    const username = document.getElementById('registerUsername').value;
-    const password = document.getElementById('registerPassword').value;
-
-    const response = await fetch('/api/register', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ username, password })
-    });
-
-    const result = await response.json();
-    document.getElementById('registerStatus').innerHTML = result.message || 'Registration successful';
-});
-
-document.getElementById('loginForm').addEventListener('submit', async function(event) {
-    event.preventDefault();
-    const username = document.getElementById('loginUsername').value;
-    const password = document.getElementById('loginPassword').value;
-
-    const response = await fetch('/api/login', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ username, password })
-    });
-
-    const result = await response.json();
-    if (result.token) {
-        localStorage.setItem('token', result.token);
-        document.getElementById('loginStatus').innerHTML = 'Login successful';
-    } else {
-        document.getElementById('loginStatus').innerHTML = result.message || 'Login failed';
-    }
-});
-
 function populateRoomNumbers(roomNumbers, selectId) {
     const roomNumberSelect = document.getElementById(selectId);
     roomNumberSelect.innerHTML = '';
@@ -172,4 +136,26 @@ function htmlForAvailability(availableRooms, availableRoomsDiv) {
     } else {
         availableRoomsDiv.innerHTML = '<p>No hay habitaciones disponibles para el periodo seleccionado.</p>';
     }
+}
+
+function handleAuthState() {
+    const token = localStorage.getItem('token');
+    const registerLink = document.getElementById('registerLink');
+    const loginLink = document.getElementById('loginLink');
+    const logoutButton = document.getElementById('logoutButton');
+
+    if (token) {
+        registerLink.style.display = 'none';
+        loginLink.style.display = 'none';
+        logoutButton.style.display = 'block';
+    } else {
+        registerLink.style.display = 'block';
+        loginLink.style.display = 'block';
+        logoutButton.style.display = 'none';
+    }
+
+    logoutButton.addEventListener('click', function() {
+        localStorage.removeItem('token');
+        window.location.reload();
+    });
 }
